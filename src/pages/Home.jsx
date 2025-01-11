@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setpost } from "../app/postSlice";
-import React from 'react'
+
 const Home = () => {
   const dispatch = useDispatch();
     const navigate = useNavigate()
@@ -17,13 +17,26 @@ const Home = () => {
                 navigate('/blocked')
             }
     },[])
- 
+  const anony = useSelector((state) => state.anony);
   const user = useSelector((state) => state.user);
   const post = useSelector((state) => state.post);
 
   function submit(data) {
    if(data.content!=""){
-   
+    if (anony) {
+        setPosts([
+          { id: posts.length + 1, user: "Anonymous", content: data.content },
+          ...posts,
+        ]);
+        dispatch(setpost([
+          { id: posts.length + 1, user: "Anonymous", content: data.content },
+          ...posts,
+        ]))
+        localStorage.setItem('post', JSON.stringify([
+          { id: posts.length + 1, user: "Anonymous", content: data.content },
+          ...posts,
+        ]))
+      } else {
         setPosts([
           { id: posts.length + 1, user: user.name, content: data.content },
           ...posts,
@@ -38,7 +51,7 @@ const Home = () => {
         ]))
       }
    }
-  
+  }
   const { register, handleSubmit } = useForm();
   const [posts, setPosts] = useState(post);
   return (
@@ -55,7 +68,7 @@ const Home = () => {
           onClick={handleSubmit(submit)}
           className="bg-main text-white w-fit px-8 py-2 rounded-lg"
         >
-          {"ፖስት ያድርጉ"}
+          {anony ? "በድብቅ ፖስት ያድርጉ" : "ፖስት ያድርጉ"}
         </button>
         {posts.map((p) => {
           return (
